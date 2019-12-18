@@ -1,7 +1,7 @@
 package negocio
 
 import (
-	"gitlab.com/pu2020server/clases.git"
+	"github.com/jaimemr86/clases"
 	"bytes"
 	"cloud.google.com/go/civil"
 	"cloud.google.com/go/spanner"

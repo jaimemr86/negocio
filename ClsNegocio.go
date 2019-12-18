@@ -1,7 +1,7 @@
 package negocio
 
 import (
-	"gitlab.com/pu2020server/clases.git"
+	"github.com/jaimemr86/clases"
 	"cloud.google.com/go/spanner"
 	"google.golang.org/api/iterator"
 )
