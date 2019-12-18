@@ -9,7 +9,7 @@ import (
 
 /******DESARROLLO*******/
 var myDBPU = "projects/neodatabases/instances/neodata/databases/neodatapu2020desarrollo"
-var PathCredencial = "../CredentialDesarrollo.json"
+var PathCredencial = "negocio/CredentialDesarrollo.json"
 
 	/*Usuarios*/
 //var myDBUsuarios = "projects/neodatabases/instances/neodata/databases/neodatausuariosdesarrollo"
