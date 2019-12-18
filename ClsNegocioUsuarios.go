@@ -77,13 +77,13 @@ func ObtieneDatosUsuarioDatosToken(accessToken string) (result clases.FirebaseUs
 	jsonValue, _ := json.Marshal(objFirebase)
 	response, err := http.Post(URLPOSTFIREBASE + "?key=" + APIKEY, "application/json", bytes.NewBuffer(jsonValue))
 	if err != nil {
-		result.Errores.Error = ""
+		result.Errores.Error = "Error ObtieneDatosUsuarioDatosToken"
 		result.Errores.ErrorDescripcion = err.Error()
 		goto ResErrores
 	} else {
 		responseData, err := ioutil.ReadAll(response.Body)
 		if err != nil {
-			result.Errores.Error = ""
+			result.Errores.Error = "Error ObtieneDatosUsuarioDatosToken"
 			result.Errores.ErrorDescripcion = err.Error()
 			goto ResErrores
 		}
@@ -132,7 +132,7 @@ func ConfirmaSesionUsuarioAdministrador(email string, codigoSistema string, idSe
 	}else{
 		objUsu.RazonSocial = "Versión de demostración"
 		objUsu.CaducoSesion = true
-		objUsu.Errores.Error = ""
+		objUsu.Errores.Error = "Error ConfirmaSesionUsuarioAdministrador"
 		objUsu.Errores.ErrorDescripcion = "La sesion a caducado"
 	}
 	return objUsu
@@ -364,7 +364,7 @@ func ObtieneUsuarioAdmin(accessToken clases.ClsAccessToken) (result clases.ClsDa
 		}else{
 			result.RazonSocial = "Versión de demostración"
 			result.TokenCaducado = true
-			result.Errores.Error = ""
+			result.Errores.Error = "Error ObtieneUsuarioAdmin"
 			result.Errores.ErrorDescripcion = "Token caducado"
 		}
 	}else{
