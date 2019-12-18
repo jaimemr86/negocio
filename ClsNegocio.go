@@ -18,7 +18,7 @@ func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo) (result clase
 
 	//abre conexion a spanner
 	client, ctx, error := ConexionPU()
-	if error.Error == "ConexionError" {
+	if len(error.Error) > 0 {
 		result.Errores.Error = error.Error
 		result.Errores.ErrorDescripcion = error.ErrorDescripcion
 		goto ResErrores

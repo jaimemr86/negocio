@@ -31,7 +31,7 @@ func ConexionPU() (client *spanner.Client, ctx context.Context, error clases.Cls
 	ctx = context.Background()
 	client, err := spanner.NewClient(ctx, myDBPU, option.WithCredentialsFile(PathCredencial))
 	if err != nil {
-		error.Error = "ConexionError Prueba"
+		error.Error = "ConexionError"
 		error.ErrorDescripcion = "Error al abrir la base de datos " + err.Error()
 	}
 	return client, ctx, error
@@ -42,7 +42,7 @@ func ConexionUsuarios() (client *spanner.Client, ctx context.Context, error clas
 	ctx = context.Background()
 	client, err := spanner.NewClient(ctx, myDBUsuarios, option.WithCredentialsFile(PathCredencialUsuarios))
 	if err != nil {
-		error.Error = "ConexionError Prueba" 
+		error.Error = "ConexionError"
 		error.ErrorDescripcion = "Error al abrir la base de datos " + err.Error()
 	}
 	return client, ctx, error

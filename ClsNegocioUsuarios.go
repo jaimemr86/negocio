@@ -24,7 +24,7 @@ func ObtieneAccessToken(accessToken string) (IdUsuario int64){
 
 	//abre conexion a spanner
 	client, ctx, error := ConexionUsuarios()
-	if error.Error == "ConexionError" {
+	if len(error.Error) > 0 {
 		IdUsuario = 0
 		goto ResErrores
 	}
@@ -142,7 +142,7 @@ func ObtieneLicenciaCliente(email string, codigoSistema string, idUsuario int64)
 
 	//abre conexion a spanner
 	client, ctx, error := ConexionUsuarios()
-	if error.Error == "ConexionError" {
+	if len(error.Error) > 0 {
 		result.Errores.Error = error.Error
 		result.Errores.ErrorDescripcion = error.ErrorDescripcion
 		goto ResErrores
@@ -226,7 +226,7 @@ func ConfirmaSesionActiva(idSesion int64) (result clases.ClsSesion){
 
 	//abre conexion a spanner
 	client, ctx, error := ConexionUsuarios()
-	if error.Error == "ConexionError" {
+	if len(error.Error) > 0 {
 		result.Errores.Error = error.Error
 		result.Errores.ErrorDescripcion = error.ErrorDescripcion
 		goto ResErrores
@@ -266,7 +266,7 @@ func ActualizaUltimaLlamada(idSesion int64) (result clases.ClsSesion){
 	var exampleTimestamp = time.Now()
 	//abre conexion a spanner
 	client, ctx, error := ConexionUsuarios()
-	if error.Error == "ConexionError" {
+	if len(error.Error) > 0 {
 		result.Errores.Error = error.Error
 		result.Errores.ErrorDescripcion = error.ErrorDescripcion
 		goto ResErrores
@@ -298,7 +298,7 @@ func ObtieneUsuarioAdministrador(IdUsuario int64, codigoSistema string )(result 
 
 	//abre conexion a spanner
 	client, ctx, error := ConexionUsuarios()
-	if error.Error == "ConexionError" {
+	if len(error.Error) > 0 {
 		result.Errores.Error = error.Error
 		result.Errores.ErrorDescripcion = error.ErrorDescripcion
 		goto ResErrores
