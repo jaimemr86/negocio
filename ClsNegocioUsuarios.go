@@ -87,6 +87,11 @@ func ObtieneDatosUsuarioDatosToken(accessToken string) (result clases.FirebaseUs
 			result.Errores.ErrorDescripcion = err.Error()
 			goto ResErrores
 		}
+		if response.StatusCode != 200	{
+			result.Errores.Error = response.Status
+			result.Errores.ErrorDescripcion = "Token no válido"
+			goto ResErrores
+		}
 		errJ := json.Unmarshal(responseData, &result)
 		if errJ != nil {
 			result.Errores.Error = "Error ObtieneDatosUsuarioDatosToken"
