@@ -212,7 +212,7 @@ func ObtieneLicenciaCliente(email string, codigoSistema string, idUsuario int64)
 		}
 	}
 ResErrores:
-	if result.Errores.Error != "ConexionError"{
+	if error.Error != "ConexionError"{
 		defer client.Close()
 	}
 	return result
@@ -256,7 +256,7 @@ func ConfirmaSesionActiva(idSesion int64) (result clases.ClsSesion){
 		}
 	}
 ResErrores:
-	if result.Errores.Error != "ConexionError"{
+	if error.Error != "ConexionError"{
 		defer client.Close()
 	}
 	return result
@@ -288,7 +288,7 @@ func ActualizaUltimaLlamada(idSesion int64) (result clases.ClsSesion){
 	}
 
 ResErrores:
-	if result.Errores.Error != "ConexionError"{
+	if error.Error != "ConexionError"{
 		defer client.Close()
 	}
 	return result
@@ -343,6 +343,9 @@ func ObtieneUsuarioAdministrador(IdUsuario int64, codigoSistema string )(result 
 		}
 	}
 ResErrores:
+	if error.Error != "ConexionError"{
+		defer client.Close()
+	}
 	return result
 }
 
