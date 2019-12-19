@@ -1,11 +1,11 @@
 package negocio
 
 import (
-	"github.com/jaimemr86/clases"
 	"bytes"
 	"cloud.google.com/go/civil"
 	"cloud.google.com/go/spanner"
 	"encoding/json"
+	"github.com/jaimemr86/clases"
 	"google.golang.org/api/iterator"
 	"io/ioutil"
 	"net/http"
@@ -17,7 +17,7 @@ const GOOGLE_REDIRECT_URL = "https://neodata-usuarios-245016.web.app/__/auth/han
 const URLPOSTFIREBASE = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyAssertion"
 const APIKEY = "AIzaSyAS2to3Z1LwDb-RatRgXth3thXYRLtkG6I"
 
-func ObtieneAccessToken(accessToken string) (IdUsuario int64){
+func ObtieneAccessToken(accessToken string) (IdUsuario int64) {
 
 	FechaAccessToken := time.Now()
 	FechaActual := time.Now()
@@ -29,7 +29,7 @@ func ObtieneAccessToken(accessToken string) (IdUsuario int64){
 		goto ResErrores
 	}
 
-	if IdUsuario == 0{
+	if IdUsuario == 0 {
 		stmt := spanner.NewStatement(`SELECT IdUsuario,FechaHora FROM AccessTokens WHERE AccessToken = @AccessToken `)
 		stmt.Params["AccessToken"] = accessToken
 
@@ -38,7 +38,6 @@ func ObtieneAccessToken(accessToken string) (IdUsuario int64){
 		for {
 			row, err := iter.Next()
 			if err == iterator.Done {
-				IdUsuario = 0
 				break
 			}
 			if err != nil {
@@ -50,32 +49,31 @@ func ObtieneAccessToken(accessToken string) (IdUsuario int64){
 				goto ResErrores
 			}
 		}
-		after := FechaAccessToken.Add(50*time.Minute)
-		if after.Unix() < FechaActual.Unix(){
+		after := FechaAccessToken.Add(50 * time.Minute)
+		if after.Unix() < FechaActual.Unix() {
 			IdUsuario = 0
 		}
 	}
 
-
 ResErrores:
-	if error.Error != "ConexionError"{
+	if error.Error != "ConexionError" {
 		defer client.Close()
 	}
 	return IdUsuario
 }
 
-func ObtieneDatosUsuarioDatosToken(accessToken string) (result clases.FirebaseUserPerfil){
+func ObtieneDatosUsuarioDatosToken(accessToken string) (result clases.FirebaseUserPerfil) {
 
 	postBodyTmp := "access_token=" + accessToken + "&providerId=" + PROVEEDOR_GOOGLE
 
 	objFirebase := clases.FirebaseVerifyAssertion{
-		PostBody:postBodyTmp,
-		RequestUri:GOOGLE_REDIRECT_URL,
-		ReturnIdpCredential:true,
-		ReturnSecureToken:true,
+		PostBody:            postBodyTmp,
+		RequestUri:          GOOGLE_REDIRECT_URL,
+		ReturnIdpCredential: true,
+		ReturnSecureToken:   true,
 	}
 	jsonValue, _ := json.Marshal(objFirebase)
-	response, err := http.Post(URLPOSTFIREBASE + "?key=" + APIKEY, "application/json", bytes.NewBuffer(jsonValue))
+	response, err := http.Post(URLPOSTFIREBASE+"?key="+APIKEY, "application/json", bytes.NewBuffer(jsonValue))
 	if err != nil {
 		result.Errores.Error = "Error ObtieneDatosUsuarioDatosToken"
 		result.Errores.ErrorDescripcion = err.Error()
@@ -87,7 +85,7 @@ func ObtieneDatosUsuarioDatosToken(accessToken string) (result clases.FirebaseUs
 			result.Errores.ErrorDescripcion = err.Error()
 			goto ResErrores
 		}
-		if response.StatusCode != 200	{
+		if response.StatusCode != 200 {
 			result.Errores.Error = response.Status
 			result.Errores.ErrorDescripcion = "Token no válido"
 			goto ResErrores
@@ -140,7 +138,7 @@ func ConfirmaSesionUsuarioAdministrador(email string, codigoSistema string, idSe
 			objUsu.FechaVigencia = "Sin vigencia"
 			objUsu.NoTieneVigencia = true
 		}
-	}else{
+	} else {
 		objUsu.RazonSocial = "Versión de demostración"
 		objUsu.CaducoSesion = true
 		objUsu.Errores.Error = "Error ConfirmaSesionUsuarioAdministrador"
@@ -213,9 +211,9 @@ func ObtieneLicenciaCliente(email string, codigoSistema string, idUsuario int64)
 				goto ResErrores
 			}
 			if err := row.Columns(&result.IdLicencia, &result.IdSistema,
-									&result.IdUsuario, &result.NumeroLicencia,
-									&result.FechaVigencia, &result.RazonSocial,
-									&result.RefreshToken, &result.LicenciaEstudiantil ); err != nil {
+				&result.IdUsuario, &result.NumeroLicencia,
+				&result.FechaVigencia, &result.RazonSocial,
+				&result.RefreshToken, &result.LicenciaEstudiantil); err != nil {
 				result.Errores.Error = "SelectError2"
 				result.Errores.ErrorDescripcion = err.Error()
 				goto ResErrores
@@ -223,13 +221,13 @@ func ObtieneLicenciaCliente(email string, codigoSistema string, idUsuario int64)
 		}
 	}
 ResErrores:
-	if error.Error != "ConexionError"{
+	if error.Error != "ConexionError" {
 		defer client.Close()
 	}
 	return result
 }
 
-func ConfirmaSesionActiva(idSesion int64) (result clases.ClsSesion){
+func ConfirmaSesionActiva(idSesion int64) (result clases.ClsSesion) {
 
 	result.TieneActiva = true
 
@@ -267,13 +265,13 @@ func ConfirmaSesionActiva(idSesion int64) (result clases.ClsSesion){
 		}
 	}
 ResErrores:
-	if error.Error != "ConexionError"{
+	if error.Error != "ConexionError" {
 		defer client.Close()
 	}
 	return result
 }
 
-func ActualizaUltimaLlamada(idSesion int64) (result clases.ClsSesion){
+func ActualizaUltimaLlamada(idSesion int64) (result clases.ClsSesion) {
 	var exampleTimestamp = time.Now()
 	//abre conexion a spanner
 	client, ctx, error := ConexionUsuarios()
@@ -299,13 +297,13 @@ func ActualizaUltimaLlamada(idSesion int64) (result clases.ClsSesion){
 	}
 
 ResErrores:
-	if error.Error != "ConexionError"{
+	if error.Error != "ConexionError" {
 		defer client.Close()
 	}
 	return result
 }
 
-func ObtieneUsuarioAdministrador(IdUsuario int64, codigoSistema string )(result clases.ClsUsuarioAdmin) {
+func ObtieneUsuarioAdministrador(IdUsuario int64, codigoSistema string) (result clases.ClsUsuarioAdmin) {
 
 	//abre conexion a spanner
 	client, ctx, error := ConexionUsuarios()
@@ -354,7 +352,7 @@ func ObtieneUsuarioAdministrador(IdUsuario int64, codigoSistema string )(result 
 		}
 	}
 ResErrores:
-	if error.Error != "ConexionError"{
+	if error.Error != "ConexionError" {
 		defer client.Close()
 	}
 	return result
@@ -364,10 +362,10 @@ func ObtieneUsuarioAdmin(accessToken clases.ClsAccessToken) (result clases.ClsDa
 
 	IdUsuario := ObtieneAccessToken(accessToken.AccessToken)
 
-	if IdUsuario == 0{
+	if IdUsuario == 0 {
 		objF := ObtieneDatosUsuarioDatosToken(accessToken.AccessToken)
-		if objF.Errores.Error == ""{
-			result = ConfirmaSesionUsuarioAdministrador(objF.Email, accessToken.CodigoSistema, accessToken.IdSesion,IdUsuario)
+		if objF.Errores.Error == "" {
+			result = ConfirmaSesionUsuarioAdministrador(objF.Email, accessToken.CodigoSistema, accessToken.IdSesion, IdUsuario)
 			objUsuarioAdmin := ObtieneUsuarioAdministrador(result.IdUsuario, accessToken.CodigoSistema)
 			result.IdUsuario = objUsuarioAdmin.IdUsuario
 			result.IdUsuarioAdmin = objUsuarioAdmin.IdUsuarioAdmin
@@ -375,13 +373,13 @@ func ObtieneUsuarioAdmin(accessToken clases.ClsAccessToken) (result clases.ClsDa
 			result.IdEmpresa = objUsuarioAdmin.IdEmpresa
 			result.Email = objUsuarioAdmin.Email
 			result.LicenciaEstudiantil = objUsuarioAdmin.LicenciaEstudiantil
-		}else{
+		} else {
 			result.RazonSocial = "Versión de demostración"
 			result.TokenCaducado = true
 			result.Errores.Error = "Error ObtieneUsuarioAdmin"
 			result.Errores.ErrorDescripcion = "Token caducado"
 		}
-	}else{
+	} else {
 		result = ConfirmaSesionUsuarioAdministrador("", accessToken.CodigoSistema, accessToken.IdSesion, IdUsuario)
 		objUsuarioAdmin := ObtieneUsuarioAdministrador(IdUsuario, accessToken.CodigoSistema)
 		result.IdUsuario = objUsuarioAdmin.IdUsuario
@@ -394,7 +392,7 @@ func ObtieneUsuarioAdmin(accessToken clases.ClsAccessToken) (result clases.ClsDa
 	return result
 }
 
-func ObtieneUsuario(objCode clases.ClsAccessToken,SePermiteDemo bool)(result clases.ClsDatosCliente){
+func ObtieneUsuario(objCode clases.ClsAccessToken, SePermiteDemo bool) (result clases.ClsDatosCliente) {
 
 	result = ObtieneUsuarioAdmin(objCode)
 	var usuarioOk bool
@@ -402,7 +400,7 @@ func ObtieneUsuario(objCode clases.ClsAccessToken,SePermiteDemo bool)(result cla
 	if len(result.Errores.Error) > 0 {
 		usuarioOk = false
 	}
-	if usuarioOk && result.CaducoSesion	{
+	if usuarioOk && result.CaducoSesion {
 		result.Errores.Error = "Error"
 		result.Errores.ErrorDescripcion = "Caducó la sesión"
 		usuarioOk = false
