@@ -232,7 +232,7 @@ func ConfirmaSesionActiva(idSesion int64) (result clases.ClsSesion){
 		goto ResErrores
 	}
 
-	if result.Errores.Error != "" {
+	if result.Errores.Error == "" {
 		stmt := spanner.NewStatement(`SELECT IdSesion, IpPublica FROM Sesiones WHERE IdSesion = @idSesion AND Activa = true`)
 		stmt.Params["IdSesion"] = idSesion
 		iter := client.Single().Query(ctx, stmt)
