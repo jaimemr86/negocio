@@ -1,18 +1,15 @@
 package negocio
 
 import (
-	"github.com/jaimemr86/clases"
 	"cloud.google.com/go/spanner"
+	"github.com/jaimemr86/clases"
 	"google.golang.org/api/iterator"
 )
-
 
 func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo) (result clases.ClsRegresaCatalogo) {
 
 	lsDic := make(map[int64]int64)
 	var idCodigo int64
-
-	idCodigo = 0
 
 	//abre conexion a spanner
 	client, ctx, error := ConexionPU()
@@ -23,9 +20,10 @@ func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo) (result clase
 	}
 
 	for _, obj := range ListaCatalogo {
+		idCodigo = 0
 		if obj.IdCodigoNube > 0 {
 
-			if !obj.NoActualizaCatalogo	{
+			if !obj.NoActualizaCatalogo {
 				m := spanner.Update("Catalogo",
 					[]string{"IdCatalogoDeObras", "IdCodigo", "Codigo", "CodigoSap", "Descripcion", "DescripcionLarga",
 						"EsAgrupador", "EsPorcentaje", "IdFamilia", "IdFichaTecnica", "IdImagen", "IdProcedimiento", "IdProveedor",
@@ -83,7 +81,7 @@ func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo) (result clase
 					goto ResErrores
 				}
 			} else {
-				if !obj.NoActualizaCatalogo	{
+				if !obj.NoActualizaCatalogo {
 					m := spanner.Update("Catalogo",
 						[]string{"IdCatalogoDeObras", "IdCodigo", "Codigo", "CodigoSap", "Descripcion", "DescripcionLarga",
 							"EsAgrupador", "EsPorcentaje", "IdFamilia", "IdFichaTecnica", "IdImagen", "IdProcedimiento", "IdProveedor",
@@ -104,10 +102,8 @@ func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo) (result clase
 		}
 	}
 ResErrores:
-	if error.Error != "ConexionError"{
+	if error.Error != "ConexionError" {
 		defer client.Close()
 	}
 	return result
 }
-
-
