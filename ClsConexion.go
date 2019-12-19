@@ -61,7 +61,7 @@ func ConexionPU() (client *spanner.Client, ctx context.Context, error clases.Cls
 func ConexionUsuarios() (client *spanner.Client, ctx context.Context, error clases.ClsErrores){
 
 	ctx = context.Background()
-	client, err := spanner.NewClient(ctx, myDBUsuarios, option.WithCredentialsFile(PathCredencialUsuarios))
+	client, err := spanner.NewClient(ctx, myDBUsuarios, option.WithCredentialsJSON([]byte(PathCredencialUsuarios)))
 	if err != nil {
 		error.Error = "ConexionError"
 		error.ErrorDescripcion = "Error al abrir la base de datos " + err.Error()
