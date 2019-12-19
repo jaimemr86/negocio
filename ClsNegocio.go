@@ -12,8 +12,6 @@ func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo) (result clase
 	lsDic := make(map[int64]int64)
 	var idCodigo int64
 
-	result.Errores.Error = ""
-	result.Errores.ErrorDescripcion = ""
 	idCodigo = 0
 
 	//abre conexion a spanner
@@ -106,7 +104,7 @@ func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo) (result clase
 		}
 	}
 ResErrores:
-	if result.Errores.Error != "ConexionError"{
+	if error.Error != "ConexionError"{
 		defer client.Close()
 	}
 	return result
