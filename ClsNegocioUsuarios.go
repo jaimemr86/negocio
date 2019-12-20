@@ -20,7 +20,7 @@ const APIKEY = "AIzaSyAS2to3Z1LwDb-RatRgXth3thXYRLtkG6I"
 func ObtieneAccessToken(accessToken string) (IdUsuario int64) {
 
 	FechaAccessToken := time.Now().UTC()
-	FechaActual := time.Now().UTC()
+	//FechaActual := time.Now().UTC()
 
 	//abre conexion a spanner
 	client, ctx, error := ConexionUsuarios()
@@ -49,10 +49,10 @@ func ObtieneAccessToken(accessToken string) (IdUsuario int64) {
 				goto ResErrores
 			}
 		}
-		after := FechaAccessToken.Add(50 * time.Minute)
+		/*after := FechaAccessToken.Add(50 * time.Minute)
 		if after.Unix() < FechaActual.Unix() {
 			IdUsuario = 0
-		}
+		}*/
 	}
 
 ResErrores:
