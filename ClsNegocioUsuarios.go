@@ -19,8 +19,8 @@ const APIKEY = "AIzaSyAS2to3Z1LwDb-RatRgXth3thXYRLtkG6I"
 
 func ObtieneAccessToken(accessToken string) (IdUsuario int64) {
 
-	FechaAccessToken := time.Now()
-	FechaActual := time.Now()
+	FechaAccessToken := time.Now().UTC()
+	FechaActual := time.Now().UTC()
 
 	//abre conexion a spanner
 	client, ctx, error := ConexionUsuarios()
