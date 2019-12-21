@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"cloud.google.com/go/civil"
 	"cloud.google.com/go/spanner"
+	"context"
 	"encoding/json"
 	"github.com/jaimemr86/clases"
 	"google.golang.org/api/iterator"
@@ -17,17 +18,10 @@ const GOOGLE_REDIRECT_URL = "https://neodata-usuarios-245016.web.app/__/auth/han
 const URLPOSTFIREBASE = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyAssertion"
 const APIKEY = "AIzaSyAS2to3Z1LwDb-RatRgXth3thXYRLtkG6I"
 
-func ObtieneAccessToken(accessToken string) (IdUsuario int64) {
+func ObtieneAccessToken(accessToken string, client spanner.Client, ctx context.Context) (IdUsuario int64) {
 
 	FechaAccessToken := time.Now().UTC()
 	//FechaActual := time.Now().UTC()
-
-	//abre conexion a spanner
-	client, ctx, error := ConexionUsuarios()
-	if len(error.Error) > 0 {
-		IdUsuario = 0
-		goto ResErrores
-	}
 
 	if IdUsuario == 0 {
 		stmt := spanner.NewStatement(`SELECT IdUsuario,FechaHora FROM AccessTokens WHERE AccessToken = @AccessToken `)
@@ -56,9 +50,7 @@ func ObtieneAccessToken(accessToken string) (IdUsuario int64) {
 	}
 
 ResErrores:
-	if error.Error != "ConexionError" {
-		defer client.Close()
-	}
+
 	return IdUsuario
 }
 
@@ -102,16 +94,16 @@ ResErrores:
 	return result
 }
 
-func ConfirmaSesionUsuarioAdministrador(email string, codigoSistema string, idSesion int64, IdUsuario int64) (result clases.ClsDatosCliente) {
+func ConfirmaSesionUsuarioAdministrador(email string, codigoSistema string, idSesion int64, IdUsuario int64, client spanner.Client, ctx context.Context) (result clases.ClsDatosCliente) {
 
 	var objUsu clases.ClsDatosCliente
 	var datosLicenciaCliente clases.ClsDatosLicenciaCliente
 	var objSesion clases.ClsSesion
 	var fechaActual civil.Date
 
-	datosLicenciaCliente = ObtieneLicenciaCliente(email, codigoSistema, IdUsuario)
+	datosLicenciaCliente = ObtieneLicenciaCliente(email, codigoSistema, IdUsuario, client, ctx)
 
-	objSesion = ConfirmaSesionActiva(idSesion)
+	objSesion = ConfirmaSesionActiva(idSesion, client, ctx)
 
 	objUsu.AccessToken = "" //objRefreshToken.access_token;
 	objUsu.Sesion = objSesion.IdSesionActiva
@@ -147,15 +139,7 @@ func ConfirmaSesionUsuarioAdministrador(email string, codigoSistema string, idSe
 	return objUsu
 }
 
-func ObtieneLicenciaCliente(email string, codigoSistema string, idUsuario int64) (result clases.ClsDatosLicenciaCliente) {
-
-	//abre conexion a spanner
-	client, ctx, error := ConexionUsuarios()
-	if len(error.Error) > 0 {
-		result.Errores.Error = error.Error
-		result.Errores.ErrorDescripcion = error.ErrorDescripcion
-		goto ResErrores
-	}
+func ObtieneLicenciaCliente(email string, codigoSistema string, idUsuario int64, client spanner.Client, ctx context.Context) (result clases.ClsDatosLicenciaCliente) {
 
 	if idUsuario == 0 {
 		stmt := spanner.NewStatement(`SELECT IdUsuario, RefreshToken FROM Usuarios WHERE Usuarios.Emailusuario = @email `)
@@ -221,25 +205,15 @@ func ObtieneLicenciaCliente(email string, codigoSistema string, idUsuario int64)
 		}
 	}
 ResErrores:
-	if error.Error != "ConexionError" {
-		defer client.Close()
-	}
+
 	return result
 }
 
-func ConfirmaSesionActiva(idSesion int64) (result clases.ClsSesion) {
+func ConfirmaSesionActiva(idSesion int64, client spanner.Client, ctx context.Context) (result clases.ClsSesion) {
 
 	result.TieneActiva = true
 
-	ActualizaUltimaLlamada(idSesion)
-
-	//abre conexion a spanner
-	client, ctx, error := ConexionUsuarios()
-	if len(error.Error) > 0 {
-		result.Errores.Error = error.Error
-		result.Errores.ErrorDescripcion = error.ErrorDescripcion
-		goto ResErrores
-	}
+	ActualizaUltimaLlamada(idSesion, client, ctx)
 
 	if result.Errores.Error == "" {
 		stmt := spanner.NewStatement(`SELECT IdSesion, IpPublica FROM Sesiones WHERE IdSesion = @idSesion AND Activa = true`)
@@ -265,21 +239,13 @@ func ConfirmaSesionActiva(idSesion int64) (result clases.ClsSesion) {
 		}
 	}
 ResErrores:
-	if error.Error != "ConexionError" {
-		defer client.Close()
-	}
+
 	return result
 }
 
-func ActualizaUltimaLlamada(idSesion int64) (result clases.ClsSesion) {
+func ActualizaUltimaLlamada(idSesion int64, client spanner.Client, ctx context.Context) (result clases.ClsSesion) {
+
 	var exampleTimestamp = time.Now()
-	//abre conexion a spanner
-	client, ctx, error := ConexionUsuarios()
-	if len(error.Error) > 0 {
-		result.Errores.Error = error.Error
-		result.Errores.ErrorDescripcion = error.ErrorDescripcion
-		goto ResErrores
-	}
 
 	if result.Errores.Error == "" {
 		stmt := spanner.Statement{SQL: `UPDATE Sesiones SET FechaUltimaLlamada = @FechaUltimaLlamada WHERE IdSesion = @IdSesion`,
@@ -292,26 +258,17 @@ func ActualizaUltimaLlamada(idSesion int64) (result clases.ClsSesion) {
 		if err != nil {
 			result.Errores.Error = "UpdateError"
 			result.Errores.ErrorDescripcion = err.Error()
+			goto ResErrores
 		}
 		result.IdSesionActiva = idSesion
 	}
 
 ResErrores:
-	if error.Error != "ConexionError" {
-		defer client.Close()
-	}
+
 	return result
 }
 
-func ObtieneUsuarioAdministrador(IdUsuario int64, codigoSistema string) (result clases.ClsUsuarioAdmin) {
-
-	//abre conexion a spanner
-	client, ctx, error := ConexionUsuarios()
-	if len(error.Error) > 0 {
-		result.Errores.Error = error.Error
-		result.Errores.ErrorDescripcion = error.ErrorDescripcion
-		goto ResErrores
-	}
+func ObtieneUsuarioAdministrador(IdUsuario int64, codigoSistema string, client spanner.Client, ctx context.Context) (result clases.ClsUsuarioAdmin) {
 
 	if result.Errores.Error == "" {
 		stmt := spanner.NewStatement("SELECT Usuarios.IdUsuario,Usuarios.EmailUsuario,Empresas.IdUsuarioAdministrador AS IdUsuarioAdmin," +
@@ -352,21 +309,19 @@ func ObtieneUsuarioAdministrador(IdUsuario int64, codigoSistema string) (result 
 		}
 	}
 ResErrores:
-	if error.Error != "ConexionError" {
-		defer client.Close()
-	}
+
 	return result
 }
 
-func ObtieneUsuarioAdmin(accessToken clases.ClsAccessToken) (result clases.ClsDatosCliente) {
+func ObtieneUsuarioAdmin(accessToken clases.ClsAccessToken, client spanner.Client, ctx context.Context) (result clases.ClsDatosCliente) {
 
-	IdUsuario := ObtieneAccessToken(accessToken.AccessToken)
+	IdUsuario := ObtieneAccessToken(accessToken.AccessToken, client, ctx)
 
 	if IdUsuario == 0 {
 		objF := ObtieneDatosUsuarioDatosToken(accessToken.AccessToken)
 		if objF.Errores.Error == "" {
-			result = ConfirmaSesionUsuarioAdministrador(objF.Email, accessToken.CodigoSistema, accessToken.IdSesion, IdUsuario)
-			objUsuarioAdmin := ObtieneUsuarioAdministrador(result.IdUsuario, accessToken.CodigoSistema)
+			result = ConfirmaSesionUsuarioAdministrador(objF.Email, accessToken.CodigoSistema, accessToken.IdSesion, IdUsuario, client, ctx)
+			objUsuarioAdmin := ObtieneUsuarioAdministrador(result.IdUsuario, accessToken.CodigoSistema, client, ctx)
 			result.IdUsuario = objUsuarioAdmin.IdUsuario
 			result.IdUsuarioAdmin = objUsuarioAdmin.IdUsuarioAdmin
 			result.EmailAdmin = objUsuarioAdmin.EmailAdmin
@@ -380,8 +335,8 @@ func ObtieneUsuarioAdmin(accessToken clases.ClsAccessToken) (result clases.ClsDa
 			result.Errores.ErrorDescripcion = "Token caducado"
 		}
 	} else {
-		result = ConfirmaSesionUsuarioAdministrador("", accessToken.CodigoSistema, accessToken.IdSesion, IdUsuario)
-		objUsuarioAdmin := ObtieneUsuarioAdministrador(IdUsuario, accessToken.CodigoSistema)
+		result = ConfirmaSesionUsuarioAdministrador("", accessToken.CodigoSistema, accessToken.IdSesion, IdUsuario, client, ctx)
+		objUsuarioAdmin := ObtieneUsuarioAdministrador(IdUsuario, accessToken.CodigoSistema, client, ctx)
 		result.IdUsuario = objUsuarioAdmin.IdUsuario
 		result.IdUsuarioAdmin = objUsuarioAdmin.IdUsuarioAdmin
 		result.EmailAdmin = objUsuarioAdmin.EmailAdmin
@@ -392,9 +347,9 @@ func ObtieneUsuarioAdmin(accessToken clases.ClsAccessToken) (result clases.ClsDa
 	return result
 }
 
-func ObtieneUsuario(objCode clases.ClsAccessToken, SePermiteDemo bool) (result clases.ClsDatosCliente) {
+func ObtieneUsuario(objCode clases.ClsAccessToken, SePermiteDemo bool, client spanner.Client, ctx context.Context) (result clases.ClsDatosCliente) {
 
-	result = ObtieneUsuarioAdmin(objCode)
+	result = ObtieneUsuarioAdmin(objCode, client, ctx)
 	var usuarioOk bool
 
 	if len(result.Errores.Error) > 0 {

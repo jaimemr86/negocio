@@ -2,27 +2,19 @@ package negocio
 
 import (
 	"cloud.google.com/go/spanner"
+	"context"
 	"github.com/jaimemr86/clases"
 	"google.golang.org/api/iterator"
 )
 
-func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo) (result clases.ClsRegresaCatalogo) {
+func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo,client spanner.Client, ctx context.Context) (result clases.ClsRegresaCatalogo) {
 
 	lsDic := make(map[int64]int64)
 	var idCodigo int64
 
-	//abre conexion a spanner
-	client, ctx, error := ConexionPU()
-	if len(error.Error) > 0 {
-		result.Errores.Error = error.Error
-		result.Errores.ErrorDescripcion = error.ErrorDescripcion
-		goto ResErrores
-	}
-
 	for _, obj := range ListaCatalogo {
 		idCodigo = 0
 		if obj.IdCodigoNube > 0 {
-
 			if !obj.NoActualizaCatalogo {
 				m := spanner.Update("Catalogo",
 					[]string{"IdCatalogoDeObras", "IdCodigo", "Codigo", "CodigoSap", "Descripcion", "DescripcionLarga",
@@ -102,8 +94,6 @@ func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo) (result clase
 		}
 	}
 ResErrores:
-	if error.Error != "ConexionError" {
-		defer client.Close()
-	}
+
 	return result
 }
