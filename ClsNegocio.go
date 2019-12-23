@@ -6,9 +6,6 @@ import (
 	"github.com/jaimemr86/clases"
 	"google.golang.org/api/iterator"
 )
-type Client struct {
-	client *spanner.Client
-}
 
 func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo, ctx context.Context, client *spanner.Client) (result clases.ClsRegresaCatalogo) {
 
