@@ -18,7 +18,7 @@ const GOOGLE_REDIRECT_URL = "https://neodata-usuarios-245016.web.app/__/auth/han
 const URLPOSTFIREBASE = "https://www.googleapis.com/identitytoolkit/v3/relyingparty/verifyAssertion"
 const APIKEY = "AIzaSyAS2to3Z1LwDb-RatRgXth3thXYRLtkG6I"
 
-func ObtieneAccessToken(accessToken string, client *spanner.Client, ctx context.Context) (IdUsuario int64) {
+func ObtieneAccessToken(accessToken string, client spanner.Client, ctx context.Context) (IdUsuario int64) {
 
 	FechaAccessToken := time.Now().UTC()
 	//FechaActual := time.Now().UTC()
@@ -94,7 +94,7 @@ ResErrores:
 	return result
 }
 
-func ConfirmaSesionUsuarioAdministrador(email string, codigoSistema string, idSesion int64, IdUsuario int64, client *spanner.Client, ctx context.Context) (result clases.ClsDatosCliente) {
+func ConfirmaSesionUsuarioAdministrador(email string, codigoSistema string, idSesion int64, IdUsuario int64, client spanner.Client, ctx context.Context) (result clases.ClsDatosCliente) {
 
 	var objUsu clases.ClsDatosCliente
 	var datosLicenciaCliente clases.ClsDatosLicenciaCliente
@@ -139,7 +139,7 @@ func ConfirmaSesionUsuarioAdministrador(email string, codigoSistema string, idSe
 	return objUsu
 }
 
-func ObtieneLicenciaCliente(email string, codigoSistema string, idUsuario int64, client *spanner.Client, ctx context.Context) (result clases.ClsDatosLicenciaCliente) {
+func ObtieneLicenciaCliente(email string, codigoSistema string, idUsuario int64, client spanner.Client, ctx context.Context) (result clases.ClsDatosLicenciaCliente) {
 
 	if idUsuario == 0 {
 		stmt := spanner.NewStatement(`SELECT IdUsuario, RefreshToken FROM Usuarios WHERE Usuarios.Emailusuario = @email `)
@@ -209,7 +209,7 @@ ResErrores:
 	return result
 }
 
-func ConfirmaSesionActiva(idSesion int64, client *spanner.Client, ctx context.Context) (result clases.ClsSesion) {
+func ConfirmaSesionActiva(idSesion int64, client spanner.Client, ctx context.Context) (result clases.ClsSesion) {
 
 	result.TieneActiva = true
 
@@ -243,7 +243,7 @@ ResErrores:
 	return result
 }
 
-func ActualizaUltimaLlamada(idSesion int64, client *spanner.Client, ctx context.Context) (result clases.ClsSesion) {
+func ActualizaUltimaLlamada(idSesion int64, client spanner.Client, ctx context.Context) (result clases.ClsSesion) {
 
 	var exampleTimestamp = time.Now()
 
@@ -268,7 +268,7 @@ ResErrores:
 	return result
 }
 
-func ObtieneUsuarioAdministrador(IdUsuario int64, codigoSistema string, client *spanner.Client, ctx context.Context) (result clases.ClsUsuarioAdmin) {
+func ObtieneUsuarioAdministrador(IdUsuario int64, codigoSistema string, client spanner.Client, ctx context.Context) (result clases.ClsUsuarioAdmin) {
 
 	if result.Errores.Error == "" {
 		stmt := spanner.NewStatement("SELECT Usuarios.IdUsuario,Usuarios.EmailUsuario,Empresas.IdUsuarioAdministrador AS IdUsuarioAdmin," +
@@ -313,7 +313,7 @@ ResErrores:
 	return result
 }
 
-func ObtieneUsuarioAdmin(accessToken clases.ClsAccessToken, client *spanner.Client, ctx context.Context) (result clases.ClsDatosCliente) {
+func ObtieneUsuarioAdmin(accessToken clases.ClsAccessToken, client spanner.Client, ctx context.Context) (result clases.ClsDatosCliente) {
 
 	IdUsuario := ObtieneAccessToken(accessToken.AccessToken, client, ctx)
 
@@ -347,7 +347,7 @@ func ObtieneUsuarioAdmin(accessToken clases.ClsAccessToken, client *spanner.Clie
 	return result
 }
 
-func ObtieneUsuario(objCode clases.ClsAccessToken, SePermiteDemo bool, client *spanner.Client, ctx context.Context) (result clases.ClsDatosCliente) {
+func ObtieneUsuario(objCode clases.ClsAccessToken, SePermiteDemo bool, client spanner.Client, ctx context.Context) (result clases.ClsDatosCliente) {
 
 	result = ObtieneUsuarioAdmin(objCode, client, ctx)
 	var usuarioOk bool
