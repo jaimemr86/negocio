@@ -6,10 +6,11 @@ import (
 	"github.com/jaimemr86/clases"
 	"google.golang.org/api/iterator"
 )
+type Client struct {
+	client *spanner.Client
+}
 
-var client *spanner.Client
-
-func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo, ctx context.Context) (result clases.ClsRegresaCatalogo) {
+func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo, ctx context.Context, client *spanner.Client) (result clases.ClsRegresaCatalogo) {
 
 	lsDic := make(map[int64]int64)
 	var idCodigo int64
