@@ -7,7 +7,9 @@ import (
 	"google.golang.org/api/iterator"
 )
 
-func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo,client spanner.Client, ctx context.Context) (result clases.ClsRegresaCatalogo) {
+var client *spanner.Client
+
+func CatalogoRegistraActualiza(ListaCatalogo []clases.ClsCatalogo, ctx context.Context) (result clases.ClsRegresaCatalogo) {
 
 	lsDic := make(map[int64]int64)
 	var idCodigo int64
